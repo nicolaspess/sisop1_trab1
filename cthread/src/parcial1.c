@@ -25,6 +25,7 @@ int main() {
 
 	//roda enquanto apto || executando || bloqueado forem não vazias
 	int i;
+	//botei 30 só pra teste, mas na real tem q fazer o q ta comentado acima
 	for(i=0; i<30 ;i++){
 
 		random_number = Random2() % 12;
@@ -45,7 +46,7 @@ int main() {
 				newNode->node = (void *)newTCB;
 
 				//verificar se fila vazia. se nao vazia pega o ultimo nodo pra botar no 'ant' do nodo
-				int n = LastFila(&aptos);
+				int n = LastFila2(&aptos);
 				if(n == 0){
 					//lista não vazia
 					//pega o ultimo nodo
@@ -88,12 +89,25 @@ int main() {
 			strcpy(acao, "TCB sai de bloqueado e vai para apto");
 			
 		}
-		//printf("iteracao %d:    resto: %d    ação: %s \n", i,random_number,acao);
+		printf("iteracao %d:    resto: %d    acao: %s \n", i, random_number, acao);
 		//printf("	Elementos em apto: %d\n", );
 		//printf("	Elementos em executando: %d\n", );
 		//printf("	Elementos em bloqueado: %d\n", );
 		//printf("	Elementos em terminados: %d\n", );
 
 	}
-
+	/*
+	//teste para ver quantos estão em apto
+		printf("TESTE FILA APTOS \n");
+		FirstFila2(&aptos);
+		NODE2 *node;
+		node = (NODE2 *)GetAtIteratorFila2(&aptos);
+		while(node != NULL){
+			TCB_t *tcb;
+			tcb = (NODE2 *)node->node;
+			printf("identificador: %d \n", tcb->tid);
+			NextFila2(&aptos);
+			node = (NODE2 *)GetAtIteratorFila2(&aptos);
+		}
+	*/
 }
