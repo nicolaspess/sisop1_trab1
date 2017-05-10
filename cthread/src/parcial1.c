@@ -93,7 +93,8 @@ int main() {
 			strcpy(acao, "retira TCB de apto e poe em executando");
 			
 		}else if(random_number == 2 || random_number == 8){
-			//retirar o elemento TCB da fila de executando e liberar o espaço alocado pelo elemento TCB (simula o término de uma thread). Se a fila executando estiver vazia nada deve acontecer.
+			//retirar o elemento TCB da fila de executando e liberar o espaço alocado pelo elemento TCB (simula o término de uma thread). Se a fila executando 
+			//estiver vazia nada deve acontecer.
 			int n;
 			n = FirstFila2(&executando);
 			if(n == 0){
@@ -110,7 +111,8 @@ int main() {
 			strcpy(acao,"TCB sai de executando e termina");
 			
 		}else if(random_number == 3 || random_number == 9){
-			//retirar um elemento TCB da fila executando e inserir na fila de bloqueado(simula uma thread sendo bloqueada). Se a fila de executando estiver vazia nada deve ser feito.
+			//retirar um elemento TCB da fila executando e inserir na fila de bloqueado(simula uma thread sendo bloqueada). Se a fila de executando estiver vazia 
+			//nada deve ser feito.
 			int n;
 			n = FirstFila2(&executando);
 			if(n == 0){
@@ -123,7 +125,8 @@ int main() {
 			strcpy(acao,"TCB sai de executanto e vai para bloqueado");
 			
 		}else if(random_number == 4 || random_number == 10){
-			//Retirar o elemento TCB da fila de executando e inserir na fila de apto(simula a cedência voluntária do processador). Se a fila de executando estiver vazia nada deve ser feito.
+			//Retirar o elemento TCB da fila de executando e inserir na fila de apto(simula a cedência voluntária do processador). Se a fila de executando estiver 
+			//vazia nada deve ser feito.
 			int n;
 			n = FirstFila2(&executando);
 			if(n == 0){

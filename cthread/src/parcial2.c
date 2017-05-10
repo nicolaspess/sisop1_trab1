@@ -29,24 +29,75 @@ void createContext(PFILA2 aptos, void* (*start)(void*)){
 }
 
 
-void progAritmetica(){
-	//8 termos
+void progAritmetica(int repeticoes, int inicio, int r){
+	int cont;
+	int termoAtual=0;
+
+	for (cont=1;cont<=repeticoes;cont++){
+
+		termoAtual = termoAtual + r;
+
+		if (cont==1){
+			termoAtual = inicio;
+		}
+
+		printf("PA   termo %2d : %4d \n",cont,termoAtual);
+	}
+
 }
 
-void progGeometrica(){
-	//10 termos
+void progGeometrica(int repeticoes, int inicio, int q){
+	int cont;
+	int termoAtual=1;
+
+	for (cont=1;cont<=repeticoes;cont++){
+		
+		termoAtual = termoAtual * q;
+
+		if (cont==1){
+			termoAtual = inicio;
+		}
+
+		printf("PG   termo %2d : %4d\n",cont,termoAtual);
+	}
 }
 
-void fibonacci(){
-	//12 termos
+void fibonacci(int repeticoes){
+	int cont;
+	int termoAtual=0;
+	int anterior =0;
+	int maisAnterior =0;
+
+	for (cont=1;cont<=repeticoes;cont++){
+		
+		termoAtual = anterior + maisAnterior;
+		maisAnterior = anterior;
+		anterior = termoAtual;
+
+		if (cont==1){
+			termoAtual = 1;
+			anterior = 1;
+			maisAnterior = 0;
+		}
+
+		printf("Fibo termo %2d : %4d\n",cont,termoAtual);
+	}
 }
 
-void defNumerosTriangulares(){
-	//6 nros
+void defNumerosTriangulares(int repeticoes){
+	int cont;
+	int termoAtual=1;
+
+	for (cont=1;cont<=repeticoes;cont++){
+		
+		termoAtual = (cont * (cont+1))/2;
+
+		printf("Tri  termo %2d : %4d\n",cont,termoAtual);
+	}
 }
 
 int main(){
-
+	
 	//ponteiro das filas
 	FILA2 aptos;
 	FILA2 executando;
@@ -63,4 +114,18 @@ int main(){
 	createContext(&aptos, progGeometrica);
 	createContext(&aptos, fibonacci);
 	createContext(&aptos, defNumerosTriangulares);
+
+	
+
+	/*testando as funcoes
+	printf("\n\n");
+	progAritmetica(8,1, 4);				//8 termos
+	printf("\n\n");
+	progGeometrica(10, 1, 2);			//10 termos
+	printf("\n\n");
+	fibonacci(12);						//12 termos
+	printf("\n\n");
+	defNumerosTriangulares(6);			//6 numeros triangulares
+	printf("\n\n");
+	*/
 }
