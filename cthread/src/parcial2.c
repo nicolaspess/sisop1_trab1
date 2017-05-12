@@ -7,31 +7,50 @@
 #include <ucontext.h>
 
 int ids = 0;
-void createContext(PFILA2 aptos, void* (*start)(void*)){
-	
-	ucontext_t *newContext;
+FILA2 aptos;
+TCB_t *EXECUTANDO;
 
-	newContext = (ucontext_t *)(malloc(sizeof(ucontext_t)));
-	newContext->uc_stack.ss_sp = malloc(SIGSTKSZ);
-	newContext->uc_stack.ss_size = SIGSTKSZ;
-	newContext->uc_link = NULL;
+ucontext_t forwarder_ctx, main_ctx, arit_ctx, geo_ctx, fibo_ctx, tri_ctx;
 
-	TCB_t *newTCB;
-	newTCB = (TCB_t *)(malloc(sizeof(TCB_t)));
-	newTCB->tid = ids++;
-	newTCB->state = 1; //estado apto
-	newTCB->context = *newContext;
+//qnd uma thread termina essa função encaminha para a próxima dos aptos
+void forwarder(){
+	TCB_t *prox, *exe;
+	exe = EXECUTANDO;//thread q estava executando
+	//exe->state = 4;//termino
+	free(exe);
 
+	FirstFila2(&aptos);
+	prox = (TCB_t *)GetAtIteratorFila2(&aptos); //primeiro da lista de aptos
+	DeleteAtIteratorFila2(&aptos);
+	EXECUTANDO = prox;
 
-	AppendFila2(&aptos, (void *)newTCB); //insere no fim da fila
-	getcontext(&newTCB->context);
-	makecontext(&newTCB->context, (void (*)(void))start, 0);//makecontext(thread->context, funçao associada, nroArgumentos, argumentos)
+	setcontext(&prox->context);
 }
 
+void yield(){
+	TCB_t *yielder, *first;
 
-void progAritmetica(int repeticoes, int inicio, int r){
+	//poe o q tava executando no fim da fila
+	yielder = EXECUTANDO;
+	yielder->state=1;
+	AppendFila2(&aptos, (void *)yielder);
+
+	FirstFila2(&aptos);
+	first = (TCB_t *)GetAtIteratorFila2(&aptos);
+	DeleteAtIteratorFila2(&aptos);
+	first->state=2;
+	EXECUTANDO = first;
+
+	
+	swapcontext(&yielder->context, &first->context);
+}
+
+void progAritmetica(void){
 	int cont;
 	int termoAtual=0;
+	int repeticoes=8;
+	int inicio=1;
+	int r=4;
 
 	for (cont=1;cont<=repeticoes;cont++){
 
@@ -42,13 +61,17 @@ void progAritmetica(int repeticoes, int inicio, int r){
 		}
 
 		printf("PA   termo %2d : %4d \n",cont,termoAtual);
+		yield();
 	}
 
 }
 
-void progGeometrica(int repeticoes, int inicio, int q){
+void progGeometrica(void){
 	int cont;
 	int termoAtual=1;
+	int repeticoes=10;
+	int inicio = 1;
+	int q=2;
 
 	for (cont=1;cont<=repeticoes;cont++){
 		
@@ -59,14 +82,16 @@ void progGeometrica(int repeticoes, int inicio, int q){
 		}
 
 		printf("PG   termo %2d : %4d\n",cont,termoAtual);
+		yield();
 	}
 }
 
-void fibonacci(int repeticoes){
+void fibonacci(void){
 	int cont;
 	int termoAtual=0;
 	int anterior =0;
 	int maisAnterior =0;
+	int repeticoes = 12;
 
 	for (cont=1;cont<=repeticoes;cont++){
 		
@@ -81,51 +106,85 @@ void fibonacci(int repeticoes){
 		}
 
 		printf("Fibo termo %2d : %4d\n",cont,termoAtual);
+		yield();
 	}
 }
 
-void defNumerosTriangulares(int repeticoes){
+void defNumerosTriangulares(void){
 	int cont;
 	int termoAtual=1;
+	int repeticoes =6;
 
 	for (cont=1;cont<=repeticoes;cont++){
 		
 		termoAtual = (cont * (cont+1))/2;
 
 		printf("Tri  termo %2d : %4d\n",cont,termoAtual);
+		yield();
 	}
 }
 
-int main(){
+void main(){
 	
-	//ponteiro das filas
-	FILA2 aptos;
-	FILA2 executando;
-	FILA2 bloqueados;
+	TCB_t *arit_tcb, *geo_tcb, *fibo_tcb, *tri_tcb;
+
+	if (CreateFila2(&aptos) != 0) printf("erro ao criar fila executando \n");
+
+	getcontext(&main_ctx);
+
+	getcontext(&forwarder_ctx);
+	forwarder_ctx.uc_stack.ss_sp = malloc(SIGSTKSZ);
+	forwarder_ctx.uc_stack.ss_size= SIGSTKSZ;
+	forwarder_ctx.uc_link = 0;
+	makecontext(&forwarder_ctx, forwarder,0);
+
+	//arit_ctx = (ucontext_t *)malloc(sizeof(ucontext_t));
+	getcontext(&arit_ctx);
+	arit_ctx.uc_stack.ss_sp = malloc(SIGSTKSZ);
+	arit_ctx.uc_stack.ss_size= SIGSTKSZ;
+	arit_ctx.uc_link = &forwarder_ctx;
+	makecontext(&arit_ctx, progAritmetica,0);
+	arit_tcb = (TCB_t *)malloc(sizeof(TCB_t));
+	arit_tcb->tid = ids ++;
+	arit_tcb->state=2;//executando
+	arit_tcb->context = arit_ctx;
+	EXECUTANDO = arit_tcb;
+
+	//geo_ctx = (ucontext_t *)malloc(sizeof(ucontext_t));
+	getcontext(&geo_ctx);
+	geo_ctx.uc_stack.ss_sp = malloc(SIGSTKSZ);
+	geo_ctx.uc_stack.ss_size= SIGSTKSZ;
+	geo_ctx.uc_link = &forwarder_ctx;
+	makecontext(&geo_ctx, progGeometrica,0);
+	geo_tcb = (TCB_t *)malloc(sizeof(TCB_t));
+	geo_tcb->tid = ids ++;
+	geo_tcb->state=1;//apto
+	geo_tcb->context = geo_ctx;
+	AppendFila2(&aptos, (void*)geo_tcb);
 	
-	//criando as filas
-	if (CreateFila2(&aptos) != 0) printf("erro ao criar fila aptos \n");
-	if (CreateFila2(&executando) != 0) printf("erro ao criar fila executando \n");
-	if (CreateFila2(&bloqueados) != 0) printf("erro ao criar fila bloqueados \n");
-	//criadas filas vazias
-
-	//criando os contextos e colocando-os na ordem na fila de aptos(acho q faz isso)
-	createContext(&aptos, progAritmetica);
-	createContext(&aptos, progGeometrica);
-	createContext(&aptos, fibonacci);
-	createContext(&aptos, defNumerosTriangulares);
-
+	//fibo_ctx = (ucontext_t *)malloc(sizeof(ucontext_t));
+	getcontext(&fibo_ctx);
+	fibo_ctx.uc_stack.ss_sp = malloc(SIGSTKSZ);
+	fibo_ctx.uc_stack.ss_size= SIGSTKSZ;
+	fibo_ctx.uc_link = &forwarder_ctx;
+	makecontext(&fibo_ctx, fibonacci,0);
+	fibo_tcb = (TCB_t *)malloc(sizeof(TCB_t));
+	fibo_tcb->tid = ids ++;
+	fibo_tcb->state=1;//apto
+	fibo_tcb->context = fibo_ctx;
+	AppendFila2(&aptos, (void*)fibo_tcb);
 	
-
-	/*testando as funcoes
-	printf("\n\n");
-	progAritmetica(8,1, 4);				//8 termos
-	printf("\n\n");
-	progGeometrica(10, 1, 2);			//10 termos
-	printf("\n\n");
-	fibonacci(12);						//12 termos
-	printf("\n\n");
-	defNumerosTriangulares(6);			//6 numeros triangulares
-	printf("\n\n");
-	*/
+	//tri_ctx = (ucontext_t *)malloc(sizeof(ucontext_t));
+	getcontext(&tri_ctx);
+	tri_ctx.uc_stack.ss_sp = malloc(SIGSTKSZ);
+	tri_ctx.uc_stack.ss_size= SIGSTKSZ;
+	tri_ctx.uc_link = &forwarder_ctx;
+	makecontext(&tri_ctx, defNumerosTriangulares,0);
+	tri_tcb = (TCB_t *)malloc(sizeof(TCB_t));
+	tri_tcb->tid = ids ++;
+	tri_tcb->state=1;//apto
+	tri_tcb->context = tri_ctx;
+	AppendFila2(&aptos, (void*)tri_tcb);
+	
+	swapcontext(&main_ctx, &arit_ctx);
 }
