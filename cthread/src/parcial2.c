@@ -48,7 +48,7 @@ void yield(){
 void progAritmetica(void){
 	int cont;
 	int termoAtual=0;
-	int repeticoes=8;
+	int repeticoes=8;//8
 	int inicio=1;
 	int r=4;
 
@@ -69,7 +69,7 @@ void progAritmetica(void){
 void progGeometrica(void){
 	int cont;
 	int termoAtual=1;
-	int repeticoes=10;
+	int repeticoes=10;//10
 	int inicio = 1;
 	int q=2;
 
@@ -91,7 +91,7 @@ void fibonacci(void){
 	int termoAtual=0;
 	int anterior =0;
 	int maisAnterior =0;
-	int repeticoes = 12;
+	int repeticoes = 12;//12
 
 	for (cont=1;cont<=repeticoes;cont++){
 		
@@ -113,7 +113,7 @@ void fibonacci(void){
 void defNumerosTriangulares(void){
 	int cont;
 	int termoAtual=1;
-	int repeticoes =6;
+	int repeticoes =6;//6
 
 	for (cont=1;cont<=repeticoes;cont++){
 		
@@ -138,7 +138,7 @@ void main(){
 	forwarder_ctx.uc_link = 0;
 	makecontext(&forwarder_ctx, forwarder,0);
 
-	//arit_ctx = (ucontext_t *)malloc(sizeof(ucontext_t));
+	//cria contexto progressao aritmetica
 	getcontext(&arit_ctx);
 	arit_ctx.uc_stack.ss_sp = malloc(SIGSTKSZ);
 	arit_ctx.uc_stack.ss_size= SIGSTKSZ;
@@ -150,7 +150,7 @@ void main(){
 	arit_tcb->context = arit_ctx;
 	EXECUTANDO = arit_tcb;
 
-	//geo_ctx = (ucontext_t *)malloc(sizeof(ucontext_t));
+	//cria contexto progressao geometrica
 	getcontext(&geo_ctx);
 	geo_ctx.uc_stack.ss_sp = malloc(SIGSTKSZ);
 	geo_ctx.uc_stack.ss_size= SIGSTKSZ;
@@ -162,7 +162,7 @@ void main(){
 	geo_tcb->context = geo_ctx;
 	AppendFila2(&aptos, (void*)geo_tcb);
 	
-	//fibo_ctx = (ucontext_t *)malloc(sizeof(ucontext_t));
+	//cria contexto fibonacci
 	getcontext(&fibo_ctx);
 	fibo_ctx.uc_stack.ss_sp = malloc(SIGSTKSZ);
 	fibo_ctx.uc_stack.ss_size= SIGSTKSZ;
@@ -174,7 +174,7 @@ void main(){
 	fibo_tcb->context = fibo_ctx;
 	AppendFila2(&aptos, (void*)fibo_tcb);
 	
-	//tri_ctx = (ucontext_t *)malloc(sizeof(ucontext_t));
+	//cria contexto numeros triangulares
 	getcontext(&tri_ctx);
 	tri_ctx.uc_stack.ss_sp = malloc(SIGSTKSZ);
 	tri_ctx.uc_stack.ss_size= SIGSTKSZ;
@@ -186,5 +186,7 @@ void main(){
 	tri_tcb->context = tri_ctx;
 	AppendFila2(&aptos, (void*)tri_tcb);
 	
+
 	swapcontext(&main_ctx, &arit_ctx);
+
 }
