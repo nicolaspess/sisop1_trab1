@@ -32,9 +32,13 @@ FILA2 aptos2;
 FILA2 aptos3;
 FILA2 bloqueados;
 
+extern int ids;
+extern ucontext_t *FORWARDER;
+extern TCB_t *EXECUTANDO;
+
 void init();
 void forwarder();
-TCB_t escalonador();
+TCB_t * escalonador();
 void removeDeApto(int id, int prioridade);
 void removeDeBloqueado(int id);
 #endif

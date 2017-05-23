@@ -88,11 +88,11 @@ int main(int argc, char **argv)
     csem_init(&barbers, 1);
     csem_init(&mutex, 1);
 
-    tidBarber = ccreate (barber, (void *) NULL);
+    tidBarber = ccreate (barber, (void *) NULL,0);
     if (tidBarber < 0 )
        perror("Erro na criação do Barbeiro...\n");
 
-    tidCustomer = ccreate (customer, (void *) NULL);
+    tidCustomer = ccreate (customer, (void *) NULL,1);
     if (tidCustomer < 0 )
        perror("Erro na criação do gerador de clientes...\n");
 

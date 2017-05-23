@@ -8,7 +8,7 @@
 
 void init(){
 	if(FORWARDER == NULL){
-		ucontext *main_ctx, *forwarder_ctx;
+		ucontext_t *main_ctx, *forwarder_ctx;
 		TCB_t *mainTCB;
 
 		CreateFila2(&aptos0);
@@ -54,8 +54,7 @@ void forwarder(){
 }
 
 //seleciona a próxima thread a ser executada de acordo com a prioridade
-TCB_t escalonador(){
-	int n;
+TCB_t * escalonador(){
 	TCB_t *tcb;
 	tcb = NULL;
 	if(FirstFila2(&aptos0) == 0){

@@ -13,26 +13,26 @@ ucontext_t *FORWARDER = NULL;
 
 //cria a thread
 int ccreate (void* (*start)(void*), void *arg, int prio){
-	TCB_t *newTCB
-	ucontext_t *newContext
+	TCB_t *newTCB;
+	ucontext_t *new_ctx;
 
 	init(); //seta todas as diretrizes de fila
 
 	newTCB = (TCB_t *)malloc(sizeof(TCB_t));
-	newTCB = (ucontext_t *)malloc(sizeof(ucontext_t));
+	new_ctx = (ucontext_t *)malloc(sizeof(ucontext_t));
 
 	if(newTCB == NULL){
 		return -1;
 	}
 
-	newContext->uc_stack.ss_sp = malloc(SIGSTKSZ);
-	newContext->uc_stack.ss_size = SIGSTKSZ;
-	newContext->uc_link = FORWARDER;
+	new_ctx->uc_stack.ss_sp = malloc(SIGSTKSZ);
+	new_ctx->uc_stack.ss_size = SIGSTKSZ;
+	new_ctx->uc_link = FORWARDER;
 
 	newTCB->ticket = prio;
 	newTCB->state = 1;//apto
 	newTCB->tid = ids++;
-	newTCB->context = *newContext;
+	newTCB->context = *new_ctx;
 
 	//adiciona na fila de aptos
 	switch (prio){
@@ -50,16 +50,66 @@ int ccreate (void* (*start)(void*), void *arg, int prio){
 			break;
 	}
 	
-	AppendFila2(&aptos, (void*)newTCB);
 	getcontext(&newTCB->context);
 	makecontext(&newTCB->context, (void (*)(void))start, 1, arg);
 
 	return newTCB->tid;
 }
 //troca a prioridade
-int csetprio(int tid, int prio){
-
+int csetprio(int tid, int prio){ //função para trocar a prioridade de uma tcb com id == tid
+    // tid = id da thread que vai ter a prioridade modificada, prio = nova prioridade
+    // returna negativo se algo ter dado errado.
+        TCB_t *tcb;
+    switch (prio){
+        case 0:
+            FirstFila2(&aptos0);
+            while((tcb = GetAtIteratorFila2(&aptos0))!=NULL){
+                if(tcb->tid == tid){
+                    tcb->ticket = prio;
+                    return 0;  //encontrou a tcb correta e mudou sua prioridade
+                    break;
+                }
+                NextFila2(&aptos0);
+            }
+            break;
+        case 1:
+            FirstFila2(&aptos1);
+            while((tcb = GetAtIteratorFila2(&aptos1))!=NULL){
+                if(tcb->tid == tid){
+                    tcb->ticket = prio;
+                    return 0;
+                    break;
+                }
+                NextFila2(&aptos1);
+            }
+            break;
+        case 2:
+            FirstFila2(&aptos2);
+            while((tcb = GetAtIteratorFila2(&aptos2))!=NULL){
+                if(tcb->tid == tid){
+                    tcb->ticket = prio;
+                    return 0;
+                    break;
+                }
+                NextFila2(&aptos2);
+            }
+            break;
+        case 3:
+            FirstFila2(&aptos3);
+            while((tcb = GetAtIteratorFila2(&aptos3))!=NULL){
+                if(tcb->tid == tid){
+                    tcb->ticket = prio;
+                    return 0;
+                    break;
+                }
+                NextFila2(&aptos3);
+            }
+            break;
+    }
+    return -1;
 }
+
+
 
 //libera o processador
 int cyield(void){
@@ -86,7 +136,10 @@ int cyield(void){
 	prox = escalonador();
 	if(prox == NULL){
 		return -1;
+
 	}
+	//printf("DEU ERRO\n");
+	removeDeApto(prox->tid, prox->ticket);
 	prox->state = 2;
 	EXECUTANDO = prox;
 	
@@ -137,6 +190,8 @@ int csem_init(csem_t *sem, int count){
 	CreateFila2(fila);
 	sem->count = count;
 	sem->fila = fila;
+
+	return 0;
 }
 
 int cwait(csem_t *sem){

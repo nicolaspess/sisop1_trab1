@@ -31,6 +31,6 @@ cthread.o:
 	mv ./cthread.o $(BIN_DIR)	
 
 clean:
-	rm -rf $(LIB_DIR)/*.a $(SRC_DIR)/*~ $(BIN_DIR)/cdata.o $(BIN_DIR)/cthread.o *~
+	rm -rf $(LIB_DIR)*.a $(SRC_DIR)*~ $(BIN_DIR)cdata.o $(BIN_DIR)cthread.o *~
 
 
