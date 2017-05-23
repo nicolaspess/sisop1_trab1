@@ -26,4 +26,15 @@ typedef struct s_TCB {
 	ucontext_t 	context;	// contexto de execução da thread (SP, PC, GPRs e recursos) 
 } TCB_t; 
 
+FILA2 aptos0;
+FILA2 aptos1;
+FILA2 aptos2;
+FILA2 aptos3;
+FILA2 bloqueados;
+
+void init();
+void forwarder();
+TCB_t escalonador();
+void removeDeApto(int id, int prioridade);
+void removeDeBloqueado(int id);
 #endif
