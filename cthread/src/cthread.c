@@ -117,7 +117,7 @@ int cyield(void){
 
 	//poe o q tava executando no fim da fila
 	yielder = EXECUTANDO;
-	yielder->state=1;
+	yielder->state=1;//apto
 	switch (yielder->ticket){
 		case 0:
 			AppendFila2(&aptos0, (void*)yielder);
@@ -136,9 +136,9 @@ int cyield(void){
 	prox = escalonador();
 	if(prox == NULL){
 		return -1;
-
+		printf("DEU ERRO\n");
 	}
-	//printf("DEU ERRO\n");
+	
 	removeDeApto(prox->tid, prox->ticket);
 	prox->state = 2;
 	EXECUTANDO = prox;
@@ -150,21 +150,31 @@ int cyield(void){
 
 int cjoin(int tid){
 	TCB_t *escolhido, *bloqueado;
-	//BLOCKED_t *nodoBloqueado;
+	JOINBLOCK *bloqStruct;
 
 	init();
+
+	//verifica se existe thread com esse id
+	if(verificaTid(tid) == -1){
+		//thread não existe, ou nao esta em apto
+		return -1;
+	}
 
 	escolhido = escalonador(); //escolhe o de maior prioridade pra assumir
 	if(escolhido == NULL){
 		return -1;
 	}
+
+	//bloqueado vai esperar pela conclusão da thread de id=tid
 	bloqueado = EXECUTANDO;
 	bloqueado->state = 3;//bloqueado
 
-	//nodoBloqueado->id = tid;
-	//nodoBloqueado->tcb = bloqueado;
+	//colocamos a thread bloqueada na estrutura referida para  a fila de bloqueados
+	bloqStruct = (JOINBLOCK *)malloc(sizeof(JOINBLOCK));
+	bloqStruct->id_waiting_tcb = tid;
+	bloqStruct->tcb = bloqueado;
 
-	AppendFila2(&bloqueados, (void*)bloqueado);
+	AppendFila2(&bloqueados, (void*)bloqStruct);
 	removeDeApto(escolhido->tid, escolhido->ticket);
 	escolhido->state = 2;
 	EXECUTANDO = escolhido;
@@ -172,7 +182,7 @@ int cjoin(int tid){
 	swapcontext(&bloqueado->context, &escolhido->context);
 
 	return 0;
-
+	//a thread será tirada de bloqueado quando a thread aguardade terminar, ou seja, esta parte está implementada em forwarder.
 }
 
 int csem_init(csem_t *sem, int count){

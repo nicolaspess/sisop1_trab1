@@ -26,6 +26,12 @@ typedef struct s_TCB {
 	ucontext_t 	context;	// contexto de execução da thread (SP, PC, GPRs e recursos) 
 } TCB_t; 
 
+//usamos esta estrutura pra colocar na lsita de bloqueados
+typedef struct s_JOINBLOCK{
+	TCB_t *tcb;	//thread bloqueada;
+	int id_waiting_tcb; //id da thread que estamos esperendo acabar
+} JOINBLOCK;
+
 FILA2 aptos0;
 FILA2 aptos1;
 FILA2 aptos2;
@@ -41,4 +47,5 @@ void forwarder();
 TCB_t * escalonador();
 void removeDeApto(int id, int prioridade);
 void removeDeBloqueado(int id);
+int verificaTid(int tid);
 #endif

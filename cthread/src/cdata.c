@@ -39,17 +39,49 @@ void init(){
 	}
 }
 
-//equivale ao dispatcher
+//sempre que uma thread termina essa função é ativada
+//seleciona a proxima thread a ser executada
+//e ainda verifica se a thread que terminou estava bloqueando alguma outra, se sim, coloca-a em apto
 void forwarder(){
-	TCB_t *prox, *exe;
+
+	JOINBLOCK *bloqStruct;
+	TCB_t *prox, *exe, *bloq;
 	exe = EXECUTANDO;//thread q estava executando
-	//exe->state = 4;//termino
-	free(exe);
+	exe->state = 4;//termino
+	
+	
+	//verificamos se existia thread esperando o termino da exe
+	//se existe retiramos da fila de bloqueado e colocamos em apto
+	
+	if(FirstFila2(&bloqueados) == 0){
+		while((bloqStruct = GetAtIteratorFila2(&bloqueados))!=NULL){
+			if(bloqStruct->id_waiting_tcb == exe->tid){
+				bloq = bloqStruct->tcb;
+				DeleteAtIteratorFila2(&bloqueados);
+				switch (bloq->ticket){
+					case 0:
+						AppendFila2(&aptos0, (void*)bloq);
+						break;
+					case 1:
+						AppendFila2(&aptos1, (void*)bloq);
+						break;
+					case 2:
+						AppendFila2(&aptos2, (void*)bloq);
+						break;
+					case 3:
+						AppendFila2(&aptos3, (void*)bloq);
+						break;
+				}
+				break;
+			}
+			NextFila2(&bloqueados);
+		}
+	}
 
 	prox = escalonador(); //primeiro da lista de aptos de acordo com prioridade
 	removeDeApto(prox->tid, prox->ticket);
 	EXECUTANDO = prox;
-
+	//free(exe);
 	setcontext(&prox->context);
 }
 
@@ -128,4 +160,46 @@ TCB_t *tcb;
 		}
 		NextFila2(&bloqueados);
 	}
+}
+
+//verifica se o estado da thread passado é apto e ela existe
+int verificaTid(int tid){
+	//retorna 0 se existe
+	//retorna -1 caso não
+	TCB_t *tcb;
+
+	FirstFila2(&aptos0);
+	FirstFila2(&aptos1);
+	FirstFila2(&aptos2);
+	FirstFila2(&aptos3);
+
+	while((tcb = GetAtIteratorFila2(&aptos0))!=NULL){
+		if(tcb->tid == tid && tcb->state == 1){
+			return 0;
+			break;
+		}
+		NextFila2(&aptos0);
+	}
+	while((tcb = GetAtIteratorFila2(&aptos1))!=NULL){
+		if(tcb->tid == tid && tcb->state == 1){
+			return 0;
+			break;
+		}
+		NextFila2(&aptos1);
+	}
+	while((tcb = GetAtIteratorFila2(&aptos2))!=NULL){
+		if(tcb->tid == tid && tcb->state == 1){
+			return 0;
+			break;
+		}
+		NextFila2(&aptos2);
+	}
+	while((tcb = GetAtIteratorFila2(&aptos3))!=NULL){
+		if(tcb->tid == tid && tcb->state == 1){
+			return 0;
+			break;
+		}
+		NextFila2(&aptos3);
+	}
+	return -1;
 }
