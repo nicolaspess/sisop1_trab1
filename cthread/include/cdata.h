@@ -29,7 +29,7 @@ typedef struct s_TCB {
 //usamos esta estrutura pra colocar na lsita de bloqueados
 typedef struct s_JOINBLOCK{
 	TCB_t *tcb;	//thread bloqueada;
-	int id_waiting_tcb; //id da thread que estamos esperendo acabar
+	int id_tcb_dominante; //id da thread que esta dominando o recurso do qual a tcb nesta estrutura precisa
 } JOINBLOCK;
 
 FILA2 aptos0;

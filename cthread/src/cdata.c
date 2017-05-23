@@ -45,7 +45,7 @@ void init(){
 void forwarder(){
 
 	JOINBLOCK *bloqStruct;
-	TCB_t *prox, *exe, *bloq;
+	TCB_t *prox, *exe, *tcb_aux;
 	exe = EXECUTANDO;//thread q estava executando
 	exe->state = 4;//termino
 	
@@ -53,27 +53,37 @@ void forwarder(){
 	//verificamos se existia thread esperando o termino da exe
 	//se existe retiramos da fila de bloqueado e colocamos em apto
 	
-	if(FirstFila2(&bloqueados) == 0){
-		while((bloqStruct = GetAtIteratorFila2(&bloqueados))!=NULL){
-			if(bloqStruct->id_waiting_tcb == exe->tid){
-				bloq = bloqStruct->tcb;
-				DeleteAtIteratorFila2(&bloqueados);
-				switch (bloq->ticket){
+	if(FirstFila2(&bloqueados) == 0){ 
+
+
+
+		while((bloqStruct = GetAtIteratorFila2(&bloqueados))!=NULL){ 
+			
+
+
+			if(bloqStruct->id_tcb_dominante == exe->tid){// se a thread que acabou dominava um recurso necessário para bloqstruct->tcb
+				tcb_aux = bloqStruct->tcb;
+				//DeleteAtIteratorFila2(&bloqueados);
+				switch (tcb_aux->ticket){
 					case 0:
-						AppendFila2(&aptos0, (void*)bloq);
+						AppendFila2(&aptos0, (void*)tcb_aux);//bloqueado de prioridade 0 vira um apto na fila 0
 						break;
 					case 1:
-						AppendFila2(&aptos1, (void*)bloq);
+						AppendFila2(&aptos1, (void*)tcb_aux);
 						break;
 					case 2:
-						AppendFila2(&aptos2, (void*)bloq);
+						AppendFila2(&aptos2, (void*)tcb_aux);
 						break;
 					case 3:
-						AppendFila2(&aptos3, (void*)bloq);
+						AppendFila2(&aptos3, (void*)tcb_aux);
 						break;
 				}
 				break;
 			}
+
+
+
+
 			NextFila2(&bloqueados);
 		}
 	}
@@ -84,6 +94,8 @@ void forwarder(){
 	//free(exe);
 	setcontext(&prox->context);
 }
+
+
 
 //seleciona a próxima thread a ser executada de acordo com a prioridade
 TCB_t * escalonador(){

@@ -27,9 +27,9 @@ void* bar(void *arg){
 }
 
 int main(){
-	int id0;
+	int id0, id1;
 	id0 = ccreate(foo, (void *)&i,0);
-	ccreate(bar, (void *)&i,1);
-	cjoin(id0);
+	id1 = ccreate(bar, (void *)&i,1);		
+	cjoin(id0); cjoin(id1);
 	return 0;
 }

@@ -171,7 +171,7 @@ int cjoin(int tid){
 
 	//colocamos a thread bloqueada na estrutura referida para  a fila de bloqueados
 	bloqStruct = (JOINBLOCK *)malloc(sizeof(JOINBLOCK));
-	bloqStruct->id_waiting_tcb = tid;
+	bloqStruct->id_tcb_dominante = tid;
 	bloqStruct->tcb = bloqueado;
 
 	AppendFila2(&bloqueados, (void*)bloqStruct);
