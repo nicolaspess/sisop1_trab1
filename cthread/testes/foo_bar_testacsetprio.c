@@ -9,6 +9,10 @@ void* foo(void *arg){
 	int i=1;
 	
 	for(;i<MAX;i++){
+		if(i==30){
+			csetprio(id0,2);
+			
+		}
 		
 		if(i%15==0){
 			printf("FOO (i=%d)\n",i);
@@ -22,6 +26,8 @@ void* bar(void *arg){
 	int i=1;
 	
 	for(i++;i<MAX;i++){
+		if(i==75)
+			csetprio(id1,3);
 		if(i%15==0){
 			printf("===========BAR (i=%d)\n",i);
 			cyield();
@@ -37,6 +43,7 @@ int main(){
 	id0 = ccreate(foo, (void *)&i,0);
 	id1 = ccreate(bar, (void *)&i,0);	
 	
+	csetprio(id1,1);
 	cjoin(id0); cjoin(id1);
 
 	

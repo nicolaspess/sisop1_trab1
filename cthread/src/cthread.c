@@ -59,54 +59,94 @@ int ccreate (void* (*start)(void*), void *arg, int prio){
 int csetprio(int tid, int prio){ //função para trocar a prioridade de uma tcb com id == tid
     // tid = id da thread que vai ter a prioridade modificada, prio = nova prioridade
     // returna negativo se algo ter dado errado.
-        TCB_t *tcb;
-    switch (prio){
-        case 0:
-            FirstFila2(&aptos0);
-            while((tcb = GetAtIteratorFila2(&aptos0))!=NULL){
-                if(tcb->tid == tid){
-                    tcb->ticket = prio;
-                    return 0;  //encontrou a tcb correta e mudou sua prioridade
-                    break;
-                }
-                NextFila2(&aptos0);
-            }
-            break;
-        case 1:
-            FirstFila2(&aptos1);
-            while((tcb = GetAtIteratorFila2(&aptos1))!=NULL){
-                if(tcb->tid == tid){
-                    tcb->ticket = prio;
-                    return 0;
-                    break;
-                }
-                NextFila2(&aptos1);
-            }
-            break;
-        case 2:
-            FirstFila2(&aptos2);
-            while((tcb = GetAtIteratorFila2(&aptos2))!=NULL){
-                if(tcb->tid == tid){
-                    tcb->ticket = prio;
-                    return 0;
-                    break;
-                }
-                NextFila2(&aptos2);
-            }
-            break;
-        case 3:
-            FirstFila2(&aptos3);
-            while((tcb = GetAtIteratorFila2(&aptos3))!=NULL){
-                if(tcb->tid == tid){
-                    tcb->ticket = prio;
-                    return 0;
-                    break;
-                }
-                NextFila2(&aptos3);
-            }
-            break;
+    TCB_t *tcb;
+
+    //Listas de Aptos
+    if(FirstFila2(&aptos0)==0){ //varia
+    	while((tcb = GetAtIteratorFila2(&aptos0))!=NULL){  //varia
+        	if(tcb->tid == tid){
+            	tcb->ticket = prio; 
+            	DeleteAtIteratorFila2(&aptos0); //varia
+            	switch (prio){
+					case 0:AppendFila2(&aptos0, (void*)tcb);break;
+					case 1:AppendFila2(&aptos1, (void*)tcb);break;
+					case 2:AppendFila2(&aptos2, (void*)tcb);break;
+					case 3:AppendFila2(&aptos3, (void*)tcb);break;
+				}
+            	return 0;
+        	}
+        	NextFila2(&aptos0); //varia
+    	}	
     }
-    return -1;
+    if(FirstFila2(&aptos1)==0){ //varia
+    	while((tcb = GetAtIteratorFila2(&aptos1))!=NULL){  //varia
+        	if(tcb->tid == tid){
+            	tcb->ticket = prio; 
+            	DeleteAtIteratorFila2(&aptos1); //varia
+            	switch (prio){
+					case 0:AppendFila2(&aptos0, (void*)tcb);break;
+					case 1:AppendFila2(&aptos1, (void*)tcb);break;
+					case 2:AppendFila2(&aptos2, (void*)tcb);break;
+					case 3:AppendFila2(&aptos3, (void*)tcb);break;
+				}
+            	return 0;
+        	}
+        	NextFila2(&aptos1); //varia
+    	}	
+    }
+    if(FirstFila2(&aptos2)==0){ //varia
+    	while((tcb = GetAtIteratorFila2(&aptos2))!=NULL){  //varia
+        	if(tcb->tid == tid){
+            	tcb->ticket = prio; 
+            	DeleteAtIteratorFila2(&aptos2); //varia
+            	switch (prio){
+					case 0:AppendFila2(&aptos0, (void*)tcb);break;
+					case 1:AppendFila2(&aptos1, (void*)tcb);break;
+					case 2:AppendFila2(&aptos2, (void*)tcb);break;
+					case 3:AppendFila2(&aptos3, (void*)tcb);break;
+				}
+            	return 0;
+        	}
+        	NextFila2(&aptos2); //varia
+    	}	
+    }
+    if(FirstFila2(&aptos1)==0){ //varia
+    	while((tcb = GetAtIteratorFila2(&aptos3))!=NULL){  //varia
+        	if(tcb->tid == tid){
+            	tcb->ticket = prio; 
+            	DeleteAtIteratorFila2(&aptos3); //varia
+            	switch (prio){
+					case 0:AppendFila2(&aptos0, (void*)tcb);break;
+					case 1:AppendFila2(&aptos1, (void*)tcb);break;
+					case 2:AppendFila2(&aptos2, (void*)tcb);break;
+					case 3:AppendFila2(&aptos3, (void*)tcb);break;
+				}
+            	return 0;
+        	}
+        	NextFila2(&aptos3); //varia
+    	}	
+    }
+            
+    //Lista de Bloqueados
+    if(FirstFila2(&bloqueados)==0){ //varia
+    	while((tcb = GetAtIteratorFila2(&bloqueados))!=NULL){  //varia
+        	if(tcb->tid == tid){
+            	tcb->ticket = prio; 
+            	return 0;
+        	}
+        	NextFila2(&bloqueados); //varia
+    	}	
+    }
+
+    //Executando
+    tcb = EXECUTANDO;
+    if (tcb->tid == tid){
+    	tcb->ticket = prio;
+    	return 0;
+    }
+
+    
+    return -1; //caso o id nao exista em nenhuma dessas estruturas
 }
 
 

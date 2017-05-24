@@ -56,14 +56,14 @@ void forwarder(){
 	if(FirstFila2(&bloqueados) == 0){ 
 
 
-
+			
 		while((bloqStruct = GetAtIteratorFila2(&bloqueados))!=NULL){ 
 			
 
 
 			if(bloqStruct->id_tcb_dominante == exe->tid){// se a thread que acabou dominava um recurso necessário para bloqstruct->tcb
 				tcb_aux = bloqStruct->tcb;
-				//DeleteAtIteratorFila2(&bloqueados);
+				DeleteAtIteratorFila2(&bloqueados);
 				switch (tcb_aux->ticket){
 					case 0:
 						AppendFila2(&aptos0, (void*)tcb_aux);//bloqueado de prioridade 0 vira um apto na fila 0
