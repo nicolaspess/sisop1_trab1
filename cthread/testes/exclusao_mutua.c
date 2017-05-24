@@ -22,13 +22,14 @@ void* func1(void *arg){
 }
 
 int main(int argc, char *argv[]){
-	int id0;
+	int id0,id1;
 	int i = 999;
 	printf("teste de exclusão mutua (mutex)...\n");
 	csem_init(&mutex,1);
 	id0 = ccreate(func0, (void *)&i,0);
-	ccreate(func1, (void *)&i,0);
+	id1 = ccreate(func1, (void *)&i,0);
 	cjoin(id0);
+	cjoin(id1);
 	printf("thread main encerrando o programa... \n");
 	return 0;
 }

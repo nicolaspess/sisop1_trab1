@@ -246,27 +246,34 @@ int csem_init(csem_t *sem, int count){
 
 int cwait(csem_t *sem){
 	TCB_t *escolhido, *bloqueado;
-	//BLOCKED_t *nodoBloqueado;
+	JOINBLOCK *bloqStruct;
 
 	init();
 
 	if(sem == NULL) return -1;
 
+	//atualiza count do semaforo
 	sem->count = sem->count - 1;
 
+	//bloqueia thread e poe na fila caso semaforo <0
 	if(sem->count < 0){
+		//pega o proximo a executar
 		escolhido = escalonador();
 		if(escolhido == NULL){
 			return -1;
 		}
 
-		//nodoBloqueado = (BLOCKED_t *)malloc(sizeof(BLOCKED_t));
-		//if(nodoBloqueado == NULL) return -1;
+		//coloca na fila do semáforo e bloqueia a thread
 
+
+		bloqStruct = (JOINBLOCK *)malloc(sizeof(JOINBLOCK));
+		if(bloqStruct == NULL) return -1;
+		
 		bloqueado = EXECUTANDO;
 		bloqueado->state = 3;//bloqueado
+		bloqStruct->tcb = bloqueado;
 
-		//add na fila
+		//add na fila de bloqueados e semaforo
 		AppendFila2(&bloqueados, (void*)bloqueado);
 		AppendFila2(sem->fila, bloqueado);
 
@@ -285,11 +292,15 @@ int csignal(csem_t *sem){
 	if(sem == NULL){
 		return -1;
 	}
+	//atualiza semaforo;
 	sem->count += 1;
+
+	//pega o primeiro da fila do semaforo
 	FirstFila2(sem->fila);
 	bloqueado = GetAtIteratorFila2(sem->fila);
 
 	if(bloqueado){
+		//tira a thred das filas e bota em apto
 		DeleteAtIteratorFila2(sem->fila);
 		bloqueado->state = 1;//apto
 		removeDeBloqueado(bloqueado->tid);
@@ -315,7 +326,7 @@ int cidentify (char *name, int size){
 	if(name==NULL){
 		return -1;
 	}
-	strcpy(name, "João Batista Manique Henz matricula e Nícolas Vincent Dall Bello Pessutto 242284");
+	strcpy(nomes, "João Batista Manique Henz matricula e Nícolas Vincent Dall Bello Pessutto 242284");
 	name=nomes;
 	return 0;
 }
